@@ -35,7 +35,6 @@
 #include <helper_cuda.h>
 #include "histogram_common.h"
 
-sycl::queue sycl_queue_1;
 ////////////////////////////////////////////////////////////////////////////////
 // GPU-specific common definitions
 ////////////////////////////////////////////////////////////////////////////////
@@ -180,18 +179,18 @@ static const uint MAX_PARTIAL_HISTOGRAM64_COUNT = 32768;
 static uint *d_PartialHistograms;
 
 // Internal memory allocation
-extern "C" void initHistogram64(void) {
+extern "C" void initHistogram64(sycl::queue& sycl_queue) {
   assert(HISTOGRAM64_THREADBLOCK_SIZE % (4 * SHARED_MEMORY_BANKS) == 0);
   checkCudaErrors(DPCT_CHECK_ERROR(
       d_PartialHistograms = sycl::malloc_device<uint>(
           MAX_PARTIAL_HISTOGRAM64_COUNT * HISTOGRAM64_BIN_COUNT,
-          sycl_queue_1)));
+          sycl_queue)));
 }
 
 // Internal memory deallocation
-extern "C" void closeHistogram64(void) {
+extern "C" void closeHistogram64(sycl::queue& sycl_queue) {
   checkCudaErrors(DPCT_CHECK_ERROR(
-      sycl::free(d_PartialHistograms, sycl_queue_1)));
+      sycl::free(d_PartialHistograms, sycl_queue)));
 }
 
 // Round a / b to nearest higher integer value
@@ -202,14 +201,14 @@ inline uint iDivUp(uint a, uint b) {
 // Snap a to nearest lower multiple of b
 inline uint iSnapDown(uint a, uint b) { return a - a % b; }
 
-extern "C" void histogram64(uint *d_Histogram, void *d_Data, uint byteCount) {
+extern "C" void histogram64(uint *d_Histogram, void *d_Data, uint byteCount,sycl::queue &sycl_queue ) {
   const uint histogramCount = iDivUp(
       byteCount, HISTOGRAM64_THREADBLOCK_SIZE * iSnapDown(255, sizeof(data_t)));
 
   assert(byteCount % sizeof(data_t) == 0);
   assert(histogramCount <= MAX_PARTIAL_HISTOGRAM64_COUNT);
 
-  sycl_queue_1.submit([&](sycl::handler &cgh) {
+  sycl_queue.submit([&](sycl::handler &cgh) {
     sycl::local_accessor<uchar, 1> s_Hist_acc_ct1(
         sycl::range<1>(
             4096 /*HISTOGRAM64_THREADBLOCK_SIZE * HISTOGRAM64_BIN_COUNT*/),
@@ -230,7 +229,7 @@ extern "C" void histogram64(uint *d_Histogram, void *d_Data, uint byteCount) {
   });
   getLastCudaError("histogram64Kernel() execution failed\n");
 
-  sycl_queue_1.submit([&](sycl::handler &cgh) {
+  sycl_queue.submit([&](sycl::handler &cgh) {
     sycl::local_accessor<uint, 1> data_acc_ct1(
         sycl::range<1>(256 /*MERGE_THREADBLOCK_SIZE*/), cgh);
 

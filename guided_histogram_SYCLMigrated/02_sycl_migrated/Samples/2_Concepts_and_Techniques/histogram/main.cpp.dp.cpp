@@ -43,9 +43,7 @@
 
 const int numRuns = 16;
 const static char *sSDKsample = "[histogram]\0";
-
 sycl::queue sycl_queue;
-
 int main(int argc, char **argv) {
   uchar *h_Data;
   uint *h_HistogramCPU, *h_HistogramGPU;
@@ -108,7 +106,7 @@ int main(int argc, char **argv) {
 
   {
     printf("Starting up 64-bin histogram...\n\n");
-    initHistogram64();
+    initHistogram64(sycl_queue);
 
     printf("Running 64-bin GPU histogram for %u bytes (%u runs)...\n\n",
            byteCount, numRuns);
@@ -122,7 +120,7 @@ int main(int argc, char **argv) {
         sdkStartTimer(&hTimer);
       }
 
-      histogram64(d_Histogram, d_Data, byteCount);
+      histogram64(d_Histogram, d_Data, byteCount, sycl_queue);
     }
 
     //dpct::get_current_device().queues_wait_and_throw();
@@ -160,12 +158,12 @@ int main(int argc, char **argv) {
                         : " ***64-bin histograms do not match!!!***\n\n");
 
     printf("Shutting down 64-bin histogram...\n\n\n");
-    closeHistogram64();
+    closeHistogram64(sycl_queue);
   }
 
   {
     printf("Initializing 256-bin histogram...\n");
-    initHistogram256();
+    initHistogram256(sycl_queue);
 
     printf("Running 256-bin GPU histogram for %u bytes (%u runs)...\n\n",
            byteCount, numRuns);
@@ -180,7 +178,7 @@ int main(int argc, char **argv) {
         sdkStartTimer(&hTimer);
       }
 
-      histogram256(d_Histogram, d_Data, byteCount);
+      histogram256(d_Histogram, d_Data, byteCount, sycl_queue);
     }
 
   sycl_queue.wait();
@@ -218,9 +216,9 @@ int main(int argc, char **argv) {
                         : " ***256-bin histograms do not match!!!***\n\n");
 
     printf("Shutting down 256-bin histogram...\n\n\n");
-    closeHistogram256();
+    closeHistogram256(sycl_queue);
+  
   }
-
   printf("Shutting down...\n");
   sdkDeleteTimer(&hTimer);
   checkCudaErrors(
@@ -236,7 +234,6 @@ int main(int argc, char **argv) {
       "Results may vary when GPU Boost is enabled.\n\n");
 
   printf("%s - Test Summary\n", sSDKsample);
-
   // pass or fail (for both 64 bit and 256 bit histograms)
   if (!PassFailFlag) {
     printf("Test failed!\n");

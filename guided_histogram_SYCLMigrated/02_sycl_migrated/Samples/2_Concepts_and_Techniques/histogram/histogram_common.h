@@ -28,6 +28,8 @@
 #ifndef HISTOGRAM_COMMON_H
 #define HISTOGRAM_COMMON_H
 
+#include <sycl/sycl.hpp>
+#include <dpct/dpct.hpp>
 ////////////////////////////////////////////////////////////////////////////////
 // Common definitions
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,13 +75,13 @@ extern "C" void histogram256CPU(uint *h_Histogram, void *h_Data,
 ////////////////////////////////////////////////////////////////////////////////
 // GPU histogram
 ////////////////////////////////////////////////////////////////////////////////
-extern "C" void initHistogram64(void);
-extern "C" void initHistogram256(void);
-extern "C" void closeHistogram64(void);
-extern "C" void closeHistogram256(void);
+extern "C" void initHistogram64(sycl::queue &sycl_queue);
+extern "C" void initHistogram256(sycl::queue &sycl_queue);
+extern "C" void closeHistogram64(sycl::queue &sycl_queue);
+extern "C" void closeHistogram256(sycl::queue &sycl_queue);
 
-extern "C" void histogram64(uint *d_Histogram, void *d_Data, uint byteCount);
+extern "C" void histogram64(uint *d_Histogram, void *d_Data, uint byteCount, sycl::queue &sycl_queue);
 
-extern "C" void histogram256(uint *d_Histogram, void *d_Data, uint byteCount);
+extern "C" void histogram256(uint *d_Histogram, void *d_Data, uint byteCount, sycl::queue &sycl_queue);
 
 #endif
