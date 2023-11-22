@@ -1,6 +1,6 @@
-# `BandwidthTest` Sample
+# `Histogram` Sample
 
-The `bandwidthTest` sample measure the memcopy bandwidth of the GPU and memcpy bandwidth across PCI-e. This test application is capable of measuring device-to-device copy bandwidth, host-to-device copy bandwidth for pageable and page-locked memory, and device-to-host copy bandwidth for pageable and page-locked memory.
+The `Histogram` sample demonstrates the efficient implementation of a 64-bin and 256-bin histogram.
 The original CUDA* source code is migrated to SYCL for portability across GPUs from multiple vendors.
 
 | Area                   | Description
@@ -9,12 +9,11 @@ The original CUDA* source code is migrated to SYCL for portability across GPUs f
 | Time to complete       | 15 minutes
 | Category               | Concepts and Functionality
 
->**Note**: This sample is migrated from NVIDIA CUDA sample. See the [bandwidthTest](https://github.com/NVIDIA/cuda-samples/tree/master/Samples/1_Utilities/bandwidthTest) sample in the NVIDIA/cuda-samples GitHub.
+>**Note**: This sample is migrated from NVIDIA CUDA sample. See the [Histogram](https://github.com/NVIDIA/cuda-samples/tree/master/Samples/2_Concepts_and_Techniques/histogram) sample in the NVIDIA/cuda-samples GitHub.
 
 ## Purpose
 
-This is a simple test program to measure the memcopy bandwidth of the GPU. It can measure device-to-device copy bandwidth, host-to-device copy bandwidth
-for pageable and pinned memory and device to host copy bandwidth for pageable and pinned memory. 
+This is a simple test program to demonstrate the efficient implementation of 64-bin and 256-bin histograms. 
 
 > **Note**: The sample used the open-source [SYCLomatic tool](https://www.intel.com/content/www/us/en/developer/tools/oneapi/training/migrate-from-cuda-to-cpp-with-sycl.html) that assists developers in porting CUDA code to SYCL code. To finish the process, you must complete the rest of the coding manually and then tune to the desired level of performance for the target architecture. You can also use the [Intel® DPC++ Compatibility Tool](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compatibility-tool.html#gs.5g2aqn) available to augment Base Toolkit.
 
@@ -22,7 +21,7 @@ This sample contains two versions of the code in the following folders:
 
 | Folder Name          | Description
 |:---                  |:---
-|`01_dpct_output`      | Contains output of SYCLomatic Tool used to migrate SYCL-compliant code from CUDA code. This SYCL code has full functionality as generated.
+|`01_dpct_output`      | Contains the output of SYCLomatic Tool used to migrate SYCL-compliant code from CUDA code. This SYCL code has full functionality as generated.
 |`02_sycl_migrated`    | Contains manually migrated SYCL code from CUDA code.
 
 ## Prerequisites
@@ -31,7 +30,7 @@ This sample contains two versions of the code in the following folders:
 |:---                   |:---
 | OS                    | Ubuntu* 20.04
 | Hardware              | Intel® Gen9 <br>Intel® Gen11 <br>Intel® Xeon CPU <br>Intel® Data Center GPU Max <br> Nvidia Tesla P100 <br> Nvidia A100 <br> Nvidia H100 
-| Software              | SYCLomatic (Tag - 20231004) <br> Intel® oneAPI Base Toolkit (Base Kit) version 2023.2.1 <br> oneAPI for NVIDIA GPU plugin from Codeplay (to run SYCL™ applications on NVIDIA® GPUs)
+| Software              | SYCLomatic (Tag - 20231004) <br> Intel® oneAPI Base Toolkit (Base Kit) version 2024.0 <br> oneAPI for NVIDIA GPU plugin from Codeplay (to run SYCL™ applications on NVIDIA® GPUs)
 
 For information on how to use SYCLomatic, refer to the materials at *[Migrate from CUDA* to C++ with SYCL*](https://www.intel.com/content/www/us/en/developer/tools/oneapi/training/migrate-from-cuda-to-cpp-with-sycl.html)*.<br> How to run SYCL™ applications on NVIDIA® GPUs, refer to 
 [oneAPI for NVIDIA GPUs](https://developer.codeplay.com/products/oneapi/nvidia/) plugin from Codeplay.
@@ -39,19 +38,17 @@ For information on how to use SYCLomatic, refer to the materials at *[Migrate fr
 
 ## Key Implementation Details
 This sample demonstrates the migration of the following prominent CUDA features:
- - CUDA API (cudaHostAlloc, cudaMemcpy, cudaMalloc, cudaMemcpyAsync, cudaFree, cudaGetErrorString, cudaMallocHost, cudaSetDevice, cudaGetDeviceProperties, cudaDeviceSynchronize, cudaEventRecord, cudaFreeHost, cudaEventDestroy, cudaEventElapsedTime, cudaGetDeviceCount, cudaEventCreate)
+ - CUDA API (cudaMemcpy, cudaFree, cudaDeviceSynchronize, cudaMalloc, cudaGetDeviceProperties)
 
-BandwidthTest sample demonstrates how to measure the memcopy bandwidth of the GPU. It can measure device-to-device copy bandwidth, host-to-device copy bandwidth
-for pageable and pinned memory and device to host copy bandwidth for pageable and pinned memory.
+The Histogram sample demonstrates the efficient implementation of a 64-bin and 256-bin histogram.
 
 >**Note**: Refer to [Workflow for a CUDA* to SYCL* Migration](https://www.intel.com/content/www/us/en/developer/tools/oneapi/training/cuda-sycl-migration-workflow.html) for general information about the migration workflow.
 ## CUDA source code evaluation
 
-The BandwidthTest sample demonstrates how to measure the memcopy bandwidth of the GPU. 
+The Histogram sample demonstrates the implementation of the histogram. 
 
-- Measure device-to-device copy bandwidth.
-- Measure host-to-device copy bandwidth for pageable and pinned memory.
-- Measure device-to-host copy bandwidth for pageable and pinned memory.
+- Measure 64-bin histogram.
+- Measure 256-bin histogram.
 
 
 > **Note**: For more information on how to use Syclomatic Tool, visit [Migrate from CUDA* to C++ with SYCL*](https://www.intel.com/content/www/us/en/developer/tools/oneapi/training/migrate-from-cuda-to-cpp-with-sycl.html#gs.vmhplg).
@@ -69,9 +66,9 @@ For this sample, the SYCLomatic tool automatically migrates 100% of the CUDA cod
    ```
    git clone https://github.com/NVIDIA/cuda-samples.git
    ```
-2. Change to the bandwidthTest sample directory.
+2. Change to the Histogram sample directory.
    ```
-   cd cuda-samples/Samples/1_Utilities/bandwidthTest/
+   cd cuda-samples/Samples/2_Concepts_and_Techniques/histogram/
    ```
 3. Generate a compilation database with intercept-build.
    ```
@@ -96,7 +93,7 @@ The following manual change has been done in order to complete the migration.
       sycl::queue sycl_queue(q_prop);
       ```
 
-## Build and Run the `BandwidthTest` Sample
+## Build and Run the `Histogram` Sample
 
 > **Note**: If you have not already done so, set up your CLI
 > environment by sourcing  the `setvars` script in the root of your oneAPI installation.
@@ -151,44 +148,7 @@ The following manual change has been done in order to complete the migration.
    make run_sm
    unset ONEAPI_DEVICE_SELECTOR
    ```
-5. Running the executable with command line arguments
-    ```
-   ./bin/02_sycl_migrated --help
-    [SYCL Bandwidth Test] - Starting...
-     Usage:  bandwidthTest [OPTION]...
-     Test the bandwidth for device to host, host to device, and device to device transfers
-     
-     Example:  measure the bandwidth of device to host pinned memory copies in the range 1024 Bytes to 102400 Bytes in 1024 Byte increments
-     ./bandwidthTest --memory=pinned --mode=range --start=1024 --end=102400 --increment=1024 --dtoh
-     
-     Options:
-     --help  Display this help menu
-     --csv   Print results as a CSV
-     --device=[deviceno]     Specify the device device to be used
-       all - compute cumulative bandwidth on all the devices
-       0,1,2,...,n - Specify any particular device to be used
-     --memory=[MEMMODE]      Specify which memory mode to use
-       pageable - pageable memory
-       pinned   - non-pageable system memory
-     --mode=[MODE]   Specify the mode to use
-       quick - performs a quick measurement
-       range - measures a user-specified range of values
-       shmoo - performs an intense shmoo of a large range of values
-     --htod  Measure host to device transfers
-     --dtoh  Measure device to host transfers
-     --dtod  Measure device to device transfers
-     --wc    Allocate pinned memory as write-combined
-     --cputiming     Force CPU-based timing always
-     Range mode options
-     --start=[SIZE]  Starting transfer size in bytes
-     --end=[SIZE]    Ending transfer size in bytes
-     --increment=[SIZE]      Increment size in bytes
-   ```
-    For example, to get only the pageable memory bandwidth using the comment line argument. 
-
-   ```
-    ./bin/02_sycl_migrated --memory=pageable
-    ```
+   
 #### Troubleshooting
 
 If an error occurs, you can get more details by running `make` with
