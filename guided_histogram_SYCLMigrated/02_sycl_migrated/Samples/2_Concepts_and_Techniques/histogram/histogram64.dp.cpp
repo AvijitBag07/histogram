@@ -181,16 +181,16 @@ static uint *d_PartialHistograms;
 // Internal memory allocation
 extern "C" void initHistogram64(sycl::queue& sycl_queue) {
   assert(HISTOGRAM64_THREADBLOCK_SIZE % (4 * SHARED_MEMORY_BANKS) == 0);
-  checkCudaErrors(DPCT_CHECK_ERROR(
+  DPCT_CHECK_ERROR(
       d_PartialHistograms = sycl::malloc_device<uint>(
           MAX_PARTIAL_HISTOGRAM64_COUNT * HISTOGRAM64_BIN_COUNT,
-          sycl_queue)));
+          sycl_queue));
 }
 
 // Internal memory deallocation
 extern "C" void closeHistogram64(sycl::queue& sycl_queue) {
-  checkCudaErrors(DPCT_CHECK_ERROR(
-      sycl::free(d_PartialHistograms, sycl_queue)));
+  DPCT_CHECK_ERROR(
+      sycl::free(d_PartialHistograms, sycl_queue));
 }
 
 // Round a / b to nearest higher integer value
@@ -227,7 +227,6 @@ extern "C" void histogram64(uint *d_Histogram, void *d_Data, uint byteCount,sycl
                                          s_Hist_acc_ct1.get_pointer());
                      });
   });
-  getLastCudaError("histogram64Kernel() execution failed\n");
 
   sycl_queue.submit([&](sycl::handler &cgh) {
     sycl::local_accessor<uint, 1> data_acc_ct1(
@@ -245,5 +244,4 @@ extern "C" void histogram64(uint *d_Histogram, void *d_Data, uint byteCount,sycl
                                  data_acc_ct1.get_pointer());
         });
   });
-  getLastCudaError("mergeHistogram64() execution failed\n");
 }
