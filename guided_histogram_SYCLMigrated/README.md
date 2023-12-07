@@ -89,8 +89,7 @@ The following manual change has been done in order to complete the migration.
       ```
       Manually defined as below
       ```
-      sycl::property_list q_prop{sycl::property::queue::in_order()};
-      sycl::queue sycl_queue(q_prop);
+      sycl::queue sycl_queue;
       ```
 
 ## Build and Run the `Histogram` Sample
