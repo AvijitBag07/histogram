@@ -1,7 +1,7 @@
 {
     "guid": "6FF92FE5-E680-4ED8-A9C9-920B6D615072",	
     "name": "guided_histogram_SYCLMigration",
-    "categories": ["Toolkit/oneAPI Direct Programming/C++SYCL/"],
+    "categories": ["Toolkit/oneAPI Direct Programming/C++SYCL"],
     "description": "This sample implements 64-bin histogram calculation of arbitrary-sized 8-bit data array.",
     "toolchain": [ "dpcpp" ],
     "languages": [ { "cpp": {} } ],
