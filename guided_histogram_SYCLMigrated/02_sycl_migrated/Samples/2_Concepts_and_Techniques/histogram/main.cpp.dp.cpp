@@ -63,12 +63,12 @@ int main(int argc, char **argv) {
 
   // Use command-line specified CUDA device, otherwise use device with highest
   // Gflops/s
-  int dev = 0;//findCudaDevice(argc, (const char **)argv);
+  int dev = 0;
+  
+  DPCT_CHECK_ERROR(dpct::get_device_info(
+      deviceProp, dpct::dev_mgr::instance().get_device(dev)));
 
-  checkCudaErrors(DPCT_CHECK_ERROR(dpct::get_device_info(
-      deviceProp, dpct::dev_mgr::instance().get_device(dev))));
-
-  printf("CUDA device [%s] has %d Multi-Processors, Compute %d.%d\n",
+  printf("SYCL device [%s] has %d Multi-Processors, Compute %d.%d\n",
          deviceProp.get_name(), deviceProp.get_max_compute_units(),
          deviceProp.get_major_version(),
          deviceProp.get_minor_version());
@@ -96,13 +96,13 @@ int main(int argc, char **argv) {
   }
 
   printf("...allocating GPU memory and copying input data\n\n");
-  checkCudaErrors(DPCT_CHECK_ERROR(d_Data = (uchar *)sycl::malloc_device(
-                                       byteCount, sycl_queue)));
-  checkCudaErrors(DPCT_CHECK_ERROR(
+  DPCT_CHECK_ERROR(d_Data = (uchar *)sycl::malloc_device(
+                                       byteCount, sycl_queue));
+  DPCT_CHECK_ERROR(
       d_Histogram = sycl::malloc_device<uint>(HISTOGRAM256_BIN_COUNT,
-                                              sycl_queue)));
-  checkCudaErrors(DPCT_CHECK_ERROR(
-      sycl_queue.memcpy(d_Data, h_Data, byteCount).wait()));
+                                              sycl_queue));
+  DPCT_CHECK_ERROR(
+      sycl_queue.memcpy(d_Data, h_Data, byteCount).wait());
 
   {
     printf("Starting up 64-bin histogram...\n\n");
@@ -138,11 +138,11 @@ int main(int argc, char **argv) {
 
     printf("\nValidating GPU results...\n");
     printf(" ...reading back GPU results\n");
-    checkCudaErrors(
-        DPCT_CHECK_ERROR(sycl_queue
+    
+    DPCT_CHECK_ERROR(sycl_queue
                              .memcpy(h_HistogramGPU, d_Histogram,
                                      HISTOGRAM64_BIN_COUNT * sizeof(uint))
-                             .wait()));
+                             .wait());
 
     printf(" ...histogram64CPU()\n");
     histogram64CPU(h_HistogramCPU, h_Data, byteCount);
@@ -171,9 +171,7 @@ int main(int argc, char **argv) {
     for (int iter = -1; iter < numRuns; iter++) {
       // iter == -1 -- warmup iteration
       if (iter == 0) {
-        checkCudaErrors(DPCT_CHECK_ERROR(
-          sycl_queue.wait()));
-            //dpct::get_current_device().queues_wait_and_throw()));
+        DPCT_CHECK_ERROR(sycl_queue.wait());
         sdkResetTimer(&hTimer);
         sdkStartTimer(&hTimer);
       }
@@ -181,8 +179,7 @@ int main(int argc, char **argv) {
       histogram256(d_Histogram, d_Data, byteCount, sycl_queue);
     }
 
-  sycl_queue.wait();
-    //dpct::get_current_device().queues_wait_and_throw();
+    sycl_queue.wait();
     sdkStopTimer(&hTimer);
     double dAvgSecs =
         1.0e-3 * (double)sdkGetTimerValue(&hTimer) / (double)numRuns;
@@ -196,11 +193,11 @@ int main(int argc, char **argv) {
 
     printf("\nValidating GPU results...\n");
     printf(" ...reading back GPU results\n");
-    checkCudaErrors(
-        DPCT_CHECK_ERROR(sycl_queue
+    
+    DPCT_CHECK_ERROR(sycl_queue
                              .memcpy(h_HistogramGPU, d_Histogram,
                                      HISTOGRAM256_BIN_COUNT * sizeof(uint))
-                             .wait()));
+                             .wait());
 
     printf(" ...histogram256CPU()\n");
     histogram256CPU(h_HistogramCPU, h_Data, byteCount);
@@ -221,10 +218,9 @@ int main(int argc, char **argv) {
   }
   printf("Shutting down...\n");
   sdkDeleteTimer(&hTimer);
-  checkCudaErrors(
-      DPCT_CHECK_ERROR(sycl::free(d_Histogram, sycl_queue)));
-  checkCudaErrors(
-      DPCT_CHECK_ERROR(sycl::free(d_Data, sycl_queue)));
+  
+  DPCT_CHECK_ERROR(sycl::free(d_Histogram, sycl_queue));
+  DPCT_CHECK_ERROR(sycl::free(d_Data, sycl_queue));
   free(h_HistogramGPU);
   free(h_HistogramCPU);
   free(h_Data);
